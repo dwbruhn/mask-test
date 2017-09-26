@@ -29,6 +29,8 @@ HTTPS=true npm start
 
 ## Notes
 
+The [CreditCardDetails component](./src/CreditCardDetails.js) here was copied from the [Usage example](https://github.com/insin/react-maskedinput#usage) (and only modified for updated syntax).
+
 Safari Credit Card AutoFill yields two events on the input form:
 
 * `onKeyDown` (with key `Unidentified`)
