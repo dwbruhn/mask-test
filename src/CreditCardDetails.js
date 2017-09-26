@@ -1,18 +1,23 @@
-var React = require('react')
-var MaskedInput = require('react-maskedinput')
+import React, { Component } from 'react';
+import MaskedInput from 'react-maskedinput';
 
-var CreditCardDetails = React.createClass({
-  state: {
-    card: '',
-    expiry: '',
-    ccv: ''
-  },
+export default class CreditCardDetails extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      card: '',
+      expiry: '',
+      ccv: ''
+    };
+    this._onChange = this._onChange.bind(this);
+  }
 
   _onChange(e) {
     var stateChange = {}
     stateChange[e.target.name] = e.target.value
     this.setState(stateChange)
-  },
+  }
 
   render() {
     return <div className="CreditCardDetails">
@@ -30,8 +35,5 @@ var CreditCardDetails = React.createClass({
       </label>
     </div>
   }
-})
-
-export default CreditCardDetails;
-
+}
 
