@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import MaskedInput from 'react-maskedinput';
+// import MaskedInput from 'react-maskedinput';
+import MaskedInput from './MaskedInput';
 
 export default class CreditCardDetails extends Component {
 
