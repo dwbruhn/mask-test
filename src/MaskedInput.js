@@ -64,6 +64,7 @@ class MaskedInput extends React.Component {
   constructor(props) {
     super(props)
 
+    this._onInput = this._onInput.bind(this)
     this._onChange = this._onChange.bind(this)
     this._onKeyDown = this._onKeyDown.bind(this)
     this._onPaste = this._onPaste.bind(this)
@@ -131,10 +132,12 @@ class MaskedInput extends React.Component {
   }
 
   _onChange(e) {
-    // console.log('onChange', JSON.stringify(getSelection(this.input)), e.target.value)
+    console.log('onChange', JSON.stringify(getSelection(this.input)), e.target.value)
+    console.log(e.nativeEvent);
 
     var maskValue = this.mask.getValue()
     if (e.target.value !== maskValue) {
+      console.log(`target.value: ${e.target.value}, length ${e.target.value.length}; maskValue: ${maskValue}, length: ${maskValue.length}`);
       // Cut or delete operations will have shortened the value
       if (e.target.value.length < maskValue.length) {
         var sizeDiff = maskValue.length - e.target.value.length
@@ -148,6 +151,22 @@ class MaskedInput extends React.Component {
         this._updateInputSelection()
       }
     }
+    if (this.props.onChange) {
+      this.props.onChange(e)
+    }
+  }
+
+  _onInput(e) {
+    console.log('onInput', JSON.stringify(getSelection(this.input)), e.target.value);
+    console.log(e.nativeEvent);
+
+    this._updateMaskSelection()
+    this.mask.setValue(e.target.value);
+    console.log(`ONINPUT: Called mask.setValue(${e.target.value})`)
+    e.target.value = this.mask.getValue()
+    console.log(`ONINPUT: Set e.target.value to ${this.mask.getValue()}`);
+    this._updateInputSelection()
+
     if (this.props.onChange) {
       this.props.onChange(e)
     }
@@ -245,6 +264,7 @@ class MaskedInput extends React.Component {
 
   _getEventHandlers() {
     return {
+      onInput: this._onInput,
       onChange: this._onChange,
       onKeyDown: this._onKeyDown,
       onPaste: this._onPaste,
