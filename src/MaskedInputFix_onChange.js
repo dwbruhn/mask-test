@@ -34,7 +34,7 @@ function getSelection (el) {
       start = clone.text.length
       end = start + rangeEl.text.length
     }
-    catch (e) { /* not focused or not visible */ }
+    catch (e) { console.log('getSelection failed', e); /* not focused or not visible */ }
   }
 
   return { start, end }
@@ -64,7 +64,6 @@ class MaskedInput extends React.Component {
   constructor(props) {
     super(props)
 
-    this._onInput = this._onInput.bind(this)
     this._onChange = this._onChange.bind(this)
     this._onKeyDown = this._onKeyDown.bind(this)
     this._onPaste = this._onPaste.bind(this)
@@ -131,9 +130,10 @@ class MaskedInput extends React.Component {
     setSelection(this.input, this.mask.selection)
   }
 
-  _onChange(e) {
-    console.log('onChange', JSON.stringify(getSelection(this.input)), e.target.value)
+  _onChange_OLD(e) {
+    console.log('onChange OLD', JSON.stringify(getSelection(this.input)), e.target.value)
     console.log(e.nativeEvent);
+    console.log(e.target.style);
 
     var maskValue = this.mask.getValue()
     if (e.target.value !== maskValue) {
@@ -141,6 +141,7 @@ class MaskedInput extends React.Component {
       // Cut or delete operations will have shortened the value
       if (e.target.value.length < maskValue.length) {
         var sizeDiff = maskValue.length - e.target.value.length
+        console.log(`sizeDiff: ${sizeDiff}`);
         this._updateMaskSelection()
         this.mask.selection.end = this.mask.selection.start + sizeDiff
         this.mask.backspace()
@@ -156,16 +157,24 @@ class MaskedInput extends React.Component {
     }
   }
 
-  _onInput(e) {
-    console.log('onInput', JSON.stringify(getSelection(this.input)), e.target.value);
+  _onChange(e) {
+    console.log('onChange NEW', JSON.stringify(getSelection(this.input)), e.target.value);
     console.log(e.nativeEvent);
 
-    this._updateMaskSelection()
-    this.mask.setValue(e.target.value);
-    console.log(`ONINPUT: Called mask.setValue(${e.target.value})`)
-    e.target.value = this.mask.getValue()
-    console.log(`ONINPUT: Set e.target.value to ${this.mask.getValue()}`);
-    this._updateInputSelection()
+    var maskValue = this.mask.getValue()
+    if (e.target.value !== maskValue) { // only modify mask if input form actually changed contents
+
+      console.log(`target.value: ${e.target.value}, length ${e.target.value.length}; maskValue: ${maskValue}, length: ${maskValue.length}`);
+
+      this._updateMaskSelection()
+      this.mask.setValue(e.target.value);
+      console.log(`Called mask.setValue(${e.target.value})`)
+
+      e.target.value = this.mask.getValue()
+      console.log(`Set e.target.value to ${this.mask.getValue()}`);
+
+      this._updateInputSelection()
+    }
 
     if (this.props.onChange) {
       this.props.onChange(e)
@@ -174,6 +183,7 @@ class MaskedInput extends React.Component {
 
   _onKeyDown(e) {
     // console.log('onKeyDown', JSON.stringify(getSelection(this.input)), e.key, e.target.value)
+    // console.log(e.nativeEvent);
 
     if (isUndo(e)) {
       e.preventDefault()
@@ -212,10 +222,23 @@ class MaskedInput extends React.Component {
         }
       }
     }
+
+    /*
+    if (e.key === 'Delete') {
+      console.log('DELETE PRESSED');
+      e.preventDefault() // don't actually delete yet
+      this._updateMaskSelection() // update mask selection based on UI
+      var value = this._getDisplayValue() // get current display value (including invariant chars)
+      // if characters are selected, just do backspace
+      // otherwise emulate delete by advancing one character (if possible) then doing backspace
+      // TODO
+    }
+    */
   }
 
   _onKeyPress(e) {
     // console.log('onKeyPress', JSON.stringify(getSelection(this.input)), e.key, e.target.value)
+    // console.log(e.nativeEvent);
 
     // Ignore modified key presses
     // Ignore enter key to allow form submission
@@ -234,6 +257,7 @@ class MaskedInput extends React.Component {
 
   _onPaste(e) {
     // console.log('onPaste', JSON.stringify(getSelection(this.input)), e.clipboardData.getData('Text'), e.target.value)
+    // console.log(e.nativeEvent);
 
     e.preventDefault()
     this._updateMaskSelection()
@@ -256,15 +280,14 @@ class MaskedInput extends React.Component {
   _keyPressPropName() {
     if (typeof navigator !== 'undefined') {
       return navigator.userAgent.match(/Android/i)
-      ? 'onBeforeInput'
-      : 'onKeyPress'
+        ? 'onBeforeInput'
+        : 'onKeyPress'
     }
     return 'onKeyPress'
   }
 
   _getEventHandlers() {
     return {
-      onInput: this._onInput,
       onChange: this._onChange,
       onKeyDown: this._onKeyDown,
       onPaste: this._onPaste,
