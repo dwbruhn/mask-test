@@ -170,7 +170,7 @@ class MaskedInput extends React.Component {
       this.mask.setValue(e.target.value);
       console.log(`Called mask.setValue(${e.target.value})`)
 
-      e.target.value = this.mask.getValue()
+      e.target.value = this._getDisplayValue();
       console.log(`Set e.target.value to ${this.mask.getValue()}`);
 
       this._updateInputSelection()

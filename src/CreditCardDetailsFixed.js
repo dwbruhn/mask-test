@@ -23,7 +23,7 @@ export default class CreditCardDetailsFixed extends Component {
     return <div className="CreditCardDetails">
       <label>
         Card Number:{' '}
-        <MaskedInput mask="1111 1111 1111 1111" placeholderChar= " " name="card" size="20" onChange={this._onChange}/>
+        <MaskedInput mask="1111 1111 1111 1111" name="card" size="20" onChange={this._onChange}/>
       </label>
       <label>
         Expiry Date:{' '}
